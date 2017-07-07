@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="placeholderConfig.zjport" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>jdbc.properties</value>
+				<!--<value>classpath:/config/deploy/config.properties</value>-->
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 配置JNDI数据源   
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>java:comp/env/jdbc/zjportDataSource</value>
+		</property>   
+	</bean>--> 
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+  		<property name="driverClassName" value="${jdbc.driverClassName}" />  
+        <property name="url" value="${jdbc.url}" />  
+        <property name="username" value="${jdbc.username}" />  
+        <property name="password" value="${jdbc.password}" />  
+	</bean>
+
+	<!-- 这个是向第7步中的 DbUtilsTemplate.java 类的dataSource变量注入值  -->  
+    <bean id="dbUtilsTemplate" class="com.eBookingCn.db.DbUtilsTemplate">   
+        <property name="dataSource" ref="dataSource" />   
+    </bean> 
+    
+</beans>

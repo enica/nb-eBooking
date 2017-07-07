@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 为这个mapper指定一个唯一的namespace，namespace的值习惯上设置成包名+sql映射文件名，这样就能够保证namespace的值是唯一的 
+	例如namespace="me.gacl.mapping.userMapper"就是me.gacl.mapping(包名)+userMapper(userMapper.xml文件去除后缀) -->
+<mapper namespace="com.eBookingCn.dao.TabDao">
+	<!-- 在select标签中编写查询的SQL语句， 设置select标签的id属性为getUser，id属性值必须是唯一的，不能够重复, 使用parameterType属性指明查询时使用的参数类型，resultType属性指明查询返回的结果集类型 
+		resultType="com.hua.saf.User"就表示将查询结果封装成一个User类的对象返回,User类就是t_user表所对应的实体类 
+		resultType="com.eBookingCn.po.Tab" -->
+	<!--通过<resultMap>映射实体类属性名和表的字段名对应关系 -->
+	<resultMap type="com.eBookingCn.po.Tab" id="tabMap">
+		<!-- 用id属性来映射主键字段 -->
+		<!-- 用result属性来映射非主键字段 -->
+		<!-- 客户号 -->
+		<!-- 供应商代码  根据我方供应商列表选取 -->
+		<!-- 运费条款 -->
+		<result property="consPaymentTerm" column="d_hy_freight" />
+		<!-- 运输条款 -->
+		<result property="consTransTerm" column="d_hy_movement" />
+		<!-- 装货港 -->
+		<result property="polNameEn" column="d_loading" />
+		<!-- 中转港 -->
+		<result property="potNameEn" column="d_discharge" />
+		<!-- 卸货港 -->
+		<result property="podNameEn" column="d_delivery" />
+		<!-- 船名 -->
+		<result property="vessel" column="d_vessel_code" />
+		<!-- 航次 -->
+		<result property="voyage" column="d_voyage" />
+		<!-- 船公司名称 -->
+		<result property="carrierName" column="d_cgs2" />
+		<!-- 开航日期 -->
+		<result property="etd" column="d_khrq" />
+		<!-- 提单号 -->
+		<result property="mblNo" column="d_tdbh" />
+		<!-- 收货人 -->
+		<!-- 发货人 -->
+		<!-- 通知人 -->
+		<!-- 箱型箱量信息 -->
+		<!-- 货物描述/品名 -->
+		<!-- 唛头 -->
+		<!-- 包装类别 -->
+		<!-- 货物件数 -->
+		<result property="cargoPackages" column="d_crg_ys_no_pkgs" />
+		<!-- 毛重 -->
+		<result property="cargoGrossWeight" column="d_crg_yskgs" />
+		<!-- 净重  -->
+		<!-- 体积  -->
+		<result property="cargoVolume" column="d_crg_yscbm" />
+		<!-- 是不是危险品 -->
+		<!-- 来源方唯一标识 -->
+		<result property="sourceId" column="d_masterno" />
+		<!-- 来源方许可证号 -->
+		<!-- 集装箱类型 -->
+		<result property="ctnYs20" column="d_ctn_ys20" />
+		<result property="ctnYs40" column="d_ctn_ys40" />
+		<result property="ctnYs4h" column="d_ctn_ys4h" />
+		<result property="ctnYs45" column="d_ctn_ys45" />
+		
+	</resultMap>
+	<!-- 根据id查询得到一个user对象  and d_tdbh in ('EGLV143788005341','EGLV143788005677', 'EGLV143788005766',  'EGLV143788005758') -->
+	<select id="getConsigns" resultMap="tabMap">
+		select d_masterno, d_hy_movement, d_hy_freight, d_loading, d_discharge, d_delivery, d_vessel_code,
+		d_voyage, d_cgs2, d_khrq, d_tdbh, d_crg_ys_no_pkgs, d_crg_yskgs, d_crg_yscbm,
+		d_ctn_ys20, d_ctn_ys40, d_ctn_ys4h, d_ctn_ys45
+		 from tab_detail where d_pzgs = 'NBSYWL' and (r_sendStatus=0 or r_sendStatus is null )
+		 and (d_ctn_ys20 >0 or  d_ctn_ys40 > 0 or d_ctn_ys4h > 0 or d_ctn_ys45 > 0)
+		 and d_tdbh != ''
+		 and <![CDATA[ d_khrq < getdate()-3  ]]>
+	</select>
+	
+	<!-- 更新信息 -->  
+	<update id="updateConsigns" parameterType="com.eBookingCn.po.ConsignAddCompleteResult">  
+	        UPDATE tab_detail  
+	            SET r_retCode = #{retCode},   
+	                r_retMsg = #{retMsg},  
+	                r_retTime = #{retTime},  
+	                r_sendStatus = 1  
+	         where d_pzgs = 'NBSYWL' and d_masterno = #{sourceId}; 
+	</update>  
+</mapper>
